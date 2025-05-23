@@ -1,22 +1,29 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"glp/calculator"
-	"glp/utils"
 )
 
 func main() {
-	res, err := calculator.Calculate(2, 5, "-")
+	defer fmt.Println("Closing resource...")
+	add := calculator.Addition{}
+	res, _ := add.Apply(8, 14)
+	fmt.Println(res)
+
+	dev := calculator.Division{}
+	res, err := dev.Apply(16, 0)
 	if err != nil {
-		fmt.Println(err)
+		if val, ok := err.(*calculator.DevideByZeroError); ok {
+			fmt.Println("Our type Error")
+			fmt.Println(val.Message)
+		} else {
+			fmt.Println("Not our type Error")
+		}
 	} else {
-		fmt.Println("Result:", res)
+		fmt.Println(res)
 	}
-	pi := calculator.GetPi()
-	fmt.Println(pi)
 
-	fmt.Println(utils.IsEven(8))
-	fmt.Println(utils.IsEven(-5))
-
+	fmt.Println(errors.Is(err, calculator.ErrDivideByZero))
 }
