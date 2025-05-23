@@ -1,2 +1,2 @@
 # go-learning-journey
-my golang learning journej 
+my golang learning journey
