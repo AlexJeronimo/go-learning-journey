@@ -1,12 +1,8 @@
-package main
+package day4
 
-import (
-	"fmt"
-	"glp/day4"
-)
+/*
 
-func main() {
-	const filename = "my_test_file.txt"
+const filename = "my_test_file.txt"
 	contents := []string{"Hello Go!", " this is my first file."}
 
 	for _, content := range contents {
@@ -19,4 +15,5 @@ func main() {
 	} else {
 		fmt.Println(data)
 	}
-}
+
+*/
