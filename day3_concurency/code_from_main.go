@@ -216,3 +216,18 @@ fmt.Println("All workers completed their jobs and all results received. Programm
 	wg.Wait()
 	close(errorLogs)
 */
+
+/*
+const requests = 10
+	requestIDs := make(chan string)
+	var wg sync.WaitGroup
+
+	go day3concurency.RequestGenerator(requestIDs, requests)
+
+	for requestID := range requestIDs {
+		apiResponse := make(chan string, 1)
+		wg.Add(1)
+		go day3concurency.ProcessRequest(requestID, apiResponse, &wg)
+	}
+	wg.Wait()
+*/
