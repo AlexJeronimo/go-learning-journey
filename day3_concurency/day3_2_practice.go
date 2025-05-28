@@ -82,7 +82,8 @@ func LogAnalyzer(id int, in <-chan string, erros chan<- string, wg *sync.WaitGro
 
 }
 
-func SimulateExternalAPI(requestID string, responseChan chan<- string, timeout int) {
+func SimulateExternalAPI(requestID string, responseChan chan<- string) {
+	timeout := rand.Intn(2000)
 	time.Sleep(time.Duration(timeout) * time.Millisecond)
 	randomNumber := rand.Intn(100)
 	var responseMessage string
@@ -107,8 +108,8 @@ func RequestGenerator(requesrIDs chan<- string, count int) {
 
 func ProcessRequest(requestID string, apiResponse chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
-	delay := rand.Intn(2000)
-	go SimulateExternalAPI(requestID, apiResponse, delay)
+
+	go SimulateExternalAPI(requestID, apiResponse)
 
 	timeout := 1500 * time.Millisecond
 
