@@ -1,22 +1,5 @@
 package main
 
-import (
-	"fmt"
-	"glp/day4"
-)
-
 func main() {
-	const filename = "my_test_file.txt"
-	contents := []string{"Hello Go!", " this is my first file."}
 
-	for _, content := range contents {
-		day4.AppendToFile(filename, content)
-	}
-
-	data, err := day4.ReadFromFile(filename)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(data)
-	}
 }
