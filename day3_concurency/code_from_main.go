@@ -185,3 +185,34 @@ for result := range results {
 }
 
 fmt.Println("All workers completed their jobs and all results received. Programm finish...") */
+
+/*
+	filename := "app.log"
+	 count := 1000
+	err := day3concurency.GenerateLogEntries(filename, count)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	logLines := make(chan string, 100)
+	errorLogs := make(chan string, 50)
+	var wg sync.WaitGroup
+
+	go day3concurency.ReadLogEntries(filename, logLines)
+
+	workerPool := 5
+
+	wg.Add(5)
+	for worker := range workerPool {
+		go day3concurency.LogAnalyzer(worker, logLines, errorLogs, &wg)
+	}
+
+	go func() {
+		for err := range errorLogs {
+			fmt.Println(err)
+		}
+	}()
+
+	wg.Wait()
+	close(errorLogs)
+*/

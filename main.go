@@ -1,39 +1,21 @@
 package main
 
 import (
-	"fmt"
 	day3concurency "glp/day3_concurency"
 	"sync"
 )
 
 func main() {
-	filename := "app.log"
-	/* count := 1000
-	err := day3concurency.GenerateLogEntries(filename, count)
-	if err != nil {
-		fmt.Println(err)
-	} */
-
-	logLines := make(chan string, 100)
-	errorLogs := make(chan string, 50)
+	const requests = 10
+	requestIDs := make(chan string)
 	var wg sync.WaitGroup
 
-	go day3concurency.ReadLogEntries(filename, logLines)
+	go day3concurency.RequestGenerator(requestIDs, requests)
 
-	workerPool := 5
-
-	wg.Add(5)
-	for worker := range workerPool {
-		go day3concurency.LogAnalyzer(worker, logLines, errorLogs, &wg)
+	for requestID := range requestIDs {
+		apiResponse := make(chan string, 1)
+		wg.Add(1)
+		go day3concurency.ProcessRequest(requestID, apiResponse, &wg)
 	}
-
-	go func() {
-		for err := range errorLogs {
-			fmt.Println(err)
-		}
-	}()
-
 	wg.Wait()
-	close(errorLogs)
-
 }

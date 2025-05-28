@@ -81,3 +81,46 @@ func LogAnalyzer(id int, in <-chan string, erros chan<- string, wg *sync.WaitGro
 	}
 
 }
+
+func SimulateExternalAPI(requestID string, responseChan chan<- string, timeout int) {
+	time.Sleep(time.Duration(timeout) * time.Millisecond)
+	randomNumber := rand.Intn(100)
+	var responseMessage string
+
+	if randomNumber < 80 {
+		responseMessage = fmt.Sprintf("Response for RequestID: %s - Success!", requestID)
+	} else {
+		responseMessage = fmt.Sprintf("Response for RequestID: %s - Failed!", requestID)
+	}
+
+	responseChan <- responseMessage
+}
+
+func RequestGenerator(requesrIDs chan<- string, count int) {
+	for n := range count {
+		requestID := fmt.Sprintf("req_%d", n)
+		requesrIDs <- requestID
+	}
+
+	close(requesrIDs)
+}
+
+func ProcessRequest(requestID string, apiResponse chan string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	delay := rand.Intn(2000)
+	go SimulateExternalAPI(requestID, apiResponse, delay)
+
+	timeout := 1500 * time.Millisecond
+
+	select {
+	case response := <-apiResponse:
+		if strings.Contains(response, "Success") {
+			fmt.Printf("[Success] Request %s: %s\n", requestID, response)
+		} else {
+			fmt.Printf("[API Error] Request %s: %s\n", requestID, response)
+		}
+	case <-time.After(timeout):
+		fmt.Printf("[Timeout] Request %s does not receive response in time (%v)\n", requestID, timeout)
+	}
+
+}
