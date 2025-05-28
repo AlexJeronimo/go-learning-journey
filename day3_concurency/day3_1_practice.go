@@ -79,3 +79,15 @@ func ResultsCollector(results <-chan int, finalResultChan chan<- float64, wg *sy
 
 	finalResultChan <- average
 }
+
+func Worker1(id int, message chan<- string, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	fmt.Printf("Worker %d starting...\n", id)
+
+	time.Sleep(time.Duration(rand.Intn(500)+500) * time.Millisecond)
+
+	message <- fmt.Sprintf("Worker %d: work completed!", id)
+
+	fmt.Printf("Worker %d completed work.\n", id)
+}
