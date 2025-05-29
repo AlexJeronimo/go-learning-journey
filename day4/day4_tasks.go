@@ -86,3 +86,16 @@ func copyData(src, dst *os.File) error {
 
 	return nil
 }
+
+func ListFiles(dirPath string) ([]string, error) {
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return nil, err
+	}
+	var content []string
+	for _, entry := range entries {
+		content = append(content, entry.Name())
+	}
+
+	return content, nil
+}
