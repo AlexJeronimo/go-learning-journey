@@ -16,4 +16,12 @@ func main() {
 	jsonBytes := string(data)
 	fmt.Println(jsonBytes)
 
+	jsonString := `{"name":"Bob","email":"bob@example.com","age":25,"is_active":false}`
+
+	var newUser day4.User
+
+	json.Unmarshal([]byte(jsonString), &newUser)
+
+	fmt.Println(newUser)
+
 }
