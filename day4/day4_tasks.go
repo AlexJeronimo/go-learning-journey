@@ -2,6 +2,7 @@ package day4
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -38,4 +39,50 @@ func AppendToFile(filename string, content string) error {
 
 	return nil
 
+}
+
+func CopyFile(src, dst string) error {
+	source, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+
+	/* content, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	} */
+
+	destination, err := createFile(dst)
+	if err != nil {
+		return err
+	}
+
+	defer destination.Close()
+
+	err = copyData(source, destination)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func createFile(name string) (*os.File, error) {
+	file, err := os.Create(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return file, nil
+}
+
+func copyData(src, dst *os.File) error {
+	_, err := io.Copy(dst, src)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
