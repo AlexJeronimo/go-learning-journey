@@ -1,19 +1,19 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"glp/day4"
-	"os"
 )
 
 func main() {
-	dir, _ := os.Getwd()
-	//fmt.Println(dir)
-	files, err := day4.ListFiles(dir)
+	u := day4.User{Name: "Alice", Email: "alice@example.com", Age: 30, IsActive: true}
+	data, err := json.Marshal(u)
 	if err != nil {
 		fmt.Println(err)
 	}
-	for _, file := range files {
-		fmt.Println(file)
-	}
+
+	jsonBytes := string(data)
+	fmt.Println(jsonBytes)
+
 }
