@@ -1,16 +1,21 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"sync"
 
 	"github.com/google/uuid"
 )
+
+//go:embed static/* templates/*
+var content embed.FS
 
 var users []User
 
@@ -26,8 +31,13 @@ func main() {
 	http.HandleFunc("/submit-form", submitFormHandler)
 	http.HandleFunc("/api/users", usersAPIHandler)
 
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	//fs := http.FileServer(http.FS(content)) //http.FileServer(http.Dir("static"))
+	staticFiles, err := fs.Sub(content, "static")
+	if err != nil {
+		log.Fatalf("Failed to get sub-directory 'static' from embedded content: %v", err)
+	}
+
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFiles))))
 
 	users = []User{
 		{ID: "001", Name: "Alice", Email: "alice@example.com"},
@@ -108,7 +118,7 @@ type PageData struct {
 }
 
 func templateHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("templates/index.html")
+	tmpl, err := template.ParseFS(content, "templates/index.html") //template.ParseFiles("templates/index.html")
 	if err != nil {
 		//log.Fatal("Template parsing error: %v", err)
 		http.Error(w, "Template parsing error", http.StatusInternalServerError)
