@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -15,6 +16,7 @@ func main() {
 	http.HandleFunc("/api/user", apiUser)
 	http.HandleFunc("/404", notFoundHandler)
 	http.HandleFunc("/500", internalServerErrorHandler)
+	http.HandleFunc("/template", templateHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -66,7 +68,7 @@ func greetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Error(w, `"json": "Method not allowed"`, http.StatusInternalServerError)
+	http.Error(w, `"json": "Method not allowed"`, http.StatusMethodNotAllowed)
 }
 
 func notFoundHandler(w http.ResponseWriter, r *http.Request) {
@@ -78,4 +80,28 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 func internalServerErrorHandler(w http.ResponseWriter, r *http.Request) {
 	//w.WriteHeader(http.StatusInternalServerError)
 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+}
+
+type PageData struct {
+	Title    string
+	Greeting string
+	Name     string
+	Message  string
+	Items    []string
+}
+
+func templateHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		//log.Fatal("Template parsing error: %v", err)
+		http.Error(w, "Template parsing error", http.StatusInternalServerError)
+	}
+
+	data := PageData{
+		Title:    "Динамічна сторінка",
+		Greeting: "Привіт, світе шаблонів!",
+		Name:     "Go Розробник",
+		Items:    []string{"Елемент 1", "Елемент 2", "Елемент 3"},
+	}
+	tmpl.Execute(w, data)
 }
