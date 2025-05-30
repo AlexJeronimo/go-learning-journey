@@ -13,6 +13,8 @@ func main() {
 	http.HandleFunc("/about", aboutHandler)
 	http.HandleFunc("/greet", greetHandler)
 	http.HandleFunc("/api/user", apiUser)
+	http.HandleFunc("/404", notFoundHandler)
+	http.HandleFunc("/500", internalServerErrorHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -65,4 +67,15 @@ func greetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Error(w, `"json": "Method not allowed"`, http.StatusInternalServerError)
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	//w.WriteHeader(http.StatusNotFound)
+	//fmt.Fprintf(w, "Page not found")
+	http.Error(w, "Page not found", http.StatusNotFound)
+}
+
+func internalServerErrorHandler(w http.ResponseWriter, r *http.Request) {
+	//w.WriteHeader(http.StatusInternalServerError)
+	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 }
