@@ -7,9 +7,15 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
+
+	"github.com/google/uuid"
 )
 
+var users []User
+
 func main() {
+
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/about", aboutHandler)
 	http.HandleFunc("/greet", greetHandler)
@@ -18,6 +24,16 @@ func main() {
 	http.HandleFunc("/500", internalServerErrorHandler)
 	http.HandleFunc("/template", templateHandler)
 	http.HandleFunc("/submit-form", submitFormHandler)
+	http.HandleFunc("/api/users", usersAPIHandler)
+
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	users = []User{
+		{ID: "001", Name: "Alice", Email: "alice@example.com"},
+		{ID: "002", Name: "Bob", Email: "bob@example.com"},
+		{ID: "003", Name: "John", Email: "john@example.com"},
+	}
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -123,4 +139,57 @@ func submitFormHandler(w http.ResponseWriter, r *http.Request) {
 	comment := r.Form.Get("comment")
 
 	fmt.Fprintf(w, "Received data: Name: %s, Comment: %s", username, comment)
+}
+
+type User struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+var usersMutex sync.Mutex
+
+func usersAPIHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(users)
+		if err != nil {
+			http.Error(w, "Failed to encode users to JSON", http.StatusInternalServerError)
+			return
+		}
+
+	case http.MethodPost:
+		w.Header().Set("Content-Type", "application/json")
+		var newUser User
+		defer r.Body.Close()
+		err := json.NewDecoder(r.Body).Decode(&newUser)
+		if err != nil {
+			http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+			return
+		}
+
+		newUID, err := uuid.NewRandom()
+		if err != nil {
+			http.Error(w, "Failed to generate user ID", http.StatusInternalServerError)
+			return
+		}
+		newUser.ID = newUID.String()
+
+		usersMutex.Lock()
+		defer usersMutex.Unlock()
+
+		users = append(users, newUser)
+
+		w.WriteHeader(http.StatusCreated)
+		err = json.NewEncoder(w).Encode(newUser)
+		if err != nil {
+			http.Error(w, "Failed to encode new user", http.StatusInternalServerError)
+		}
+		return
+
+	default:
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
 }
