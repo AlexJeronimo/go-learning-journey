@@ -17,5 +17,15 @@
                 <li>{{.}}</li>
             {{end}}
         </ul>
+
+        <hr>
+        <h2>Send data:</h2>
+        <form action="/submit-form" method="POST">
+            <label for="username">User name:</label><br>
+            <input type="text" id="username" name="username" value="By default"><br><br>
+            <label for="comment">Comment:</label><br>
+            <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br><br>
+            <input type="submit" value="Send">
+        </form>
     </body>
 </html>

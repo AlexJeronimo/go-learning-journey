@@ -17,6 +17,7 @@ func main() {
 	http.HandleFunc("/404", notFoundHandler)
 	http.HandleFunc("/500", internalServerErrorHandler)
 	http.HandleFunc("/template", templateHandler)
+	http.HandleFunc("/submit-form", submitFormHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -95,6 +96,7 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		//log.Fatal("Template parsing error: %v", err)
 		http.Error(w, "Template parsing error", http.StatusInternalServerError)
+		return
 	}
 
 	data := PageData{
@@ -104,4 +106,21 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 		Items:    []string{"Елемент 1", "Елемент 2", "Елемент 3"},
 	}
 	tmpl.Execute(w, data)
+}
+
+func submitFormHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Form parse error", http.StatusInternalServerError)
+		return
+	}
+	username := r.Form.Get("username")
+	comment := r.Form.Get("comment")
+
+	fmt.Fprintf(w, "Received data: Name: %s, Comment: %s", username, comment)
 }
